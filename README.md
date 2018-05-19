@@ -1,4 +1,4 @@
-<p align="center"><img src="http://wikiclipart.com/wp-content/uploads/2016/11/Snake-clipart-5-2.png" wigth="30%"></p>
+<p align="center"><img src="http://wikiclipart.com/wp-content/uploads/2016/11/Snake-clipart-5-2.png" width="200px"></p>
 
 ## О Snak3r
 
