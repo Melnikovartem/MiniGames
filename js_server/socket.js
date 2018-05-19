@@ -7,9 +7,7 @@ var io = require('socket.io')(server);
 server.listen(3000);
 
 
-
-var game = [[]*n]
-
+var game = [[0,0,0]]
 app.get('/', function(request, response){
 
   response.sendFile(__dirname + "/index.html");
@@ -22,6 +20,8 @@ io.on('connection', function(socket){
   });
 });
 
-setinterval(function(){
-
+setInterval(function(){
+  // gamelogic
+  game[0][0]+=1;
+  io.emit('map.update', JSON.stringify(game))
 }, 500);

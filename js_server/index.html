@@ -4,11 +4,15 @@
     <meta charset = "UTF-8">
   </head>
 
-  <body>
+  <body id = "map">
     <h1>Hi</h1>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js" charset="utf-8"></script>
     <script>
       var socket = io();
+      socket.on('map.update', function(map){
+        console.log(map);
+        //update map
+      });
     </script>
   </body>
 
