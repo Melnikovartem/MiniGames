@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script type="text/javascript" src="STR.json"></script>
+    <link rel='stylesheet' href="style.css">
+    <title>Snak3r</title>
+  </head>
+  <body>
+    <script>
+    var mydata = JSON.parse(data);
+    // alert(mydata['w']);
+    // alert(mydata['h']);
+    var map = mydata["map"];
+    var color = mydata["color"];
+    var n = 40;
+
+    </script>
+
+    <!-- <div class="nav">
+      <div class="nav_block">
+        Добро пожаловать в нашу инновационную игру!
+      </div>
+    </div> -->
+
+    <div class="main">
+      <div>
+        <canvas width="640" height="640" id="canvas"></canvas>
+      </div>
+    </div>
+
+    <script>
+
+
+      render();
+
+      function render() {
+
+        var canvas = document.getElementById('canvas');
+        var ctx = canvas.getContext('2d');
+        var t = 0;
+
+        ctx.clearRect(0, 0, 640, 640);
+        for (var i = 0; i < mydata["h"]; i += 1) {
+          for (var j = 0; j < mydata["w"]; j += 1) {
+            t = map[i][j];
+            //alert(t);
+            if (t == "0") {
+              continue;
+            } else if (t == "1") {
+              ctx.fillStyle = 'red';
+              //ctx.fillRect(j*n, i*n, n, n);
+              ctx.beginPath();
+              ctx.arc(j*n + n / 2, i*n + n / 2, n / 3, 0, 2*Math.PI, false);
+              ctx.fill();
+            } else {
+              //alert(t[1] + t[2]);
+              ctx.fillStyle = color[t[1] + t[2]];
+              ctx.fillRect(j*n, i*n, n, n);
+              if (t[0] == "0") {
+                continue;
+              }
+              var t1;
+
+              if (t[0] == "1") {
+                t1 = -Math.PI;
+              }
+              if (t[0] == "2") {
+                t1 = -0.5*Math.PI;
+              }
+              if (t[0] == "3") {
+                t1 = 0;
+              }
+              if (t[0] == "4") {
+                t1 = 0.5*Math.PI;
+              }
+
+              ctx.fillStyle = 'white';
+              ctx.beginPath();
+              ctx.arc(j*n + n / 2, i*n + n / 2, n / 3, t1, t1 + Math.PI, false);
+              ctx.fill();
+            }
+          }
+        }
+      }
+
+
+
+
+
+    </script>
+  </body>
+</html>
