@@ -3,7 +3,7 @@
     <title>Hi there</title>
     <meta charset = "UTF-8">
   </head>
-  <body id = "map">
+  <body id = "map" onkeypress="push(event)">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js" charset="utf-8"></script>
     <script>
       var socket = io();
@@ -11,6 +11,24 @@
         console.log(map);
         //update map
       });
+      function push(e){
+        switch (event.which || event.keyCode) {
+          case 119:
+            socket.emit('user.pushButton', 'w')
+            break;
+          case 115:
+            socket.emit('user.pushButton', 's')
+            break;
+          case 97:
+            socket.emit('user.pushButton', 'a')
+            break;
+          case 100:
+            socket.emit('user.pushButton', 'd')
+            break;
+
+        }
+      }
+    
     </script>
   </body>
 

@@ -6,8 +6,8 @@ var io = require('socket.io')(server);
 
 server.listen(3000);
 
-var height = 200;
-var len = 200;
+var height = 10;
+var len = 10;
 var game = [];
 var row = [];
 
@@ -18,12 +18,18 @@ for(let j =0; j< height; j++){
     row.push('0');
   game.push(row);
 }
-var users= [];
+
+var users= [
+  {id: 10, cookie : '', lastButtons: ''},
+  {id: 11, cookie : '', lastButtons: ''},
+  {id: 12, cookie : '', lastButtons: ''},
+];
+
+
 var new_id = 10;
 
 var game_on = false;
 app.get('/', function(request, response){
-
   response.sendFile(__dirname + "/index.html");
   let id = -1;
   if (new_id<=20 && !game_on ){
@@ -31,7 +37,6 @@ app.get('/', function(request, response){
     new_id +=1;
     users.push({id: id, cookie : request.headers.cookie, lastButtons: ''});
   }
-  console.log(users);
 });
 
 
@@ -59,6 +64,7 @@ for(let i =0; i< users.length; i++)
       if(game[y1][x1] == '0' && game[y1-1][x1] == '0' && game[y1+1][x1] == '0'){
         game[y1][x1]   = '1' + users[i]['id'].toString();
         game[y1+1][x1] = '0' + users[i]['id'].toString();
+        game[y1-1][x1] = '1';
         break;
       }
 }
@@ -77,16 +83,61 @@ for(let k =0; k<10; k++)
 //some function for game logic
 function find_tail(pos, last_pos)
 {
-  //to do
+  id = game[pos[0]][pos[1]].slice(1);
+  if(pos[0]-1>=0 && (pos[0]-1!=last_pos[0]))
+    if(game[pos[0]-1][pos[1]].slice(1) == id)
+      return find_tail([pos[0]-1,pos[1]], pos)
+  if(pos[0]+1<game.length && (pos[0]+1!=last_pos[0]))
+    if(game[pos[0]+1][pos[1]].slice(1) == id)
+      return find_tail([pos[0]+1,pos[1]], pos)
+  if(pos[1]-1>=0 && (pos[1]-1!=last_pos[1]))
+    if(game[pos[0]][pos[1]-1].slice(1) == id)
+      return find_tail([pos[0],pos[1]-1], pos)
+  if(pos[1]+1<game[0].length && (pos[1]+1!=last_pos[1]))
+    if(game[pos[0]][pos[1]+1].slice(1) == id)
+      return find_tail([pos[0],pos[1]+1], pos)
+  return pos
 }
 
 function death(pos)
 {
-  //to do
+  id = game[pos[0]][pos[1]].slice(1);
+  if(getRandomInt(2) == 1)
+    game[pos[0]][pos[1]] = '3';
+  else
+    game[pos[0]][pos[1]] = '0';
+  if(pos[0]-1>=0)
+    if(game[pos[0]-1][pos[1]].slice(1) == id)
+      death([pos[0]-1,pos[1]])
+  if(pos[0]+1<game.length)
+    if(game[pos[0]+1][pos[1]].slice(1) == id)
+      death([pos[0]+1,pos[1]])
+  if(pos[1]-1>=0)
+    if(game[pos[0]][pos[1]-1].slice(1) == id)
+      death([pos[0],pos[1]-1])
+  if(pos[1]+1<game[0].length)
+    if(game[pos[0]][pos[1]+1].slice(1) == id)
+      death([pos[0],pos[1]+1])
 }
 
-if(users.length >= 3){
-  game_on = true;
+function print(){
+    var str;
+    for(let i = 0; i< game.length; i++ ){
+      str = '';
+      for(let j = 0; j< game[0].length; j++ )
+        if(game[i][j].length == 1)
+          str += '00' + game[i][j] + ' '
+        else
+          str += game[i][j] + ' '
+      console.log(str);
+  }
+  console.log('--------------------')
+}
+
+var dead = [];
+if(users.length >= 3)
+{
+game_on = true;
 setInterval(function(){
   // gamelogic
 
@@ -130,7 +181,7 @@ setInterval(function(){
     for(let j = 0; j<game.length; j++){
       for(let k = 0; k<game[0].length; k++)
         if(game[j][k].length == 3)
-          if(game[j][k].slice(1) == user[i]['id'].toString()){
+          if(game[j][k].slice(1) == users[i]['id'].toString()){
             y=j;
             x=k;
             found = true;
@@ -139,12 +190,11 @@ setInterval(function(){
       if(found)
         break;
     }
-
     //can move
     if(y+move[0] >= 0 && y+move[0] < game.length && x+move[1] >= 0 && x+move[1] < game[0].length){
       if(game[y+move[0]][x+move[1]].length == 1){
         //slice tail
-        if(game[y+move[0]][x+move[1]] != '1' || game[y+move[0]][x+move[1]] != '3'){
+        if(game[y+move[0]][x+move[1]] != '1' && game[y+move[0]][x+move[1]] != '3'){
           let [y1, x1] = find_tail([y,x], [-1, -1]);
           game[y1][x1] = '0';
         }
@@ -153,7 +203,7 @@ setInterval(function(){
           for(let j = 0; j< 1000; j++){
             let [y1, x1]= [getRandomInt(game.length), getRandomInt(game[0].length)];
             if(game[y1][x1] == '0'){
-              game[y1][x1] = 1;
+              game[y1][x1] = '1';
               break;
             }
           }
@@ -177,14 +227,23 @@ setInterval(function(){
         }
       }
       else{
-        death([x,y]);
+        dead.push(i);
+        death([y, x]);
       }
     }
     else{
-      death([x,y]);
+      dead.push(i);
+      death([y, x]);
     }
   }
+  while(dead.length > 0){
+    users.splice(dead[0], 1)
+    dead.splice(0, 1)
+    for(let k = 0; k< dead.length;k++)
+      dead[k]-=1;
+  }
 
+  print();
   io.emit('map.update', JSON.stringify(game))
 }, 500);
 
