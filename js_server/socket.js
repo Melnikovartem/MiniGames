@@ -110,10 +110,10 @@ setInterval(function(){
     var x=0;
     var y=0;
     let found = false;
-    //find header
+    //find head
     for(let j = 0; j<game.length; j++){
       for(let k = 0; k<game[0].length; k++)
-        if(game[j][k][0] != '0')
+        if(game[j][k][0] != '0' && game[j][k].length == 3)
           if(game[j][k].slice(1) == user[i]['id'].toString()){
             y=j;
             x=k;
@@ -147,16 +147,16 @@ setInterval(function(){
         //turn head
         switch(move){
           case[-1, 0]:
-            game[y+move[0]][x+move[1]] = '' + game[y+move[0]][x+move[1]].slice(1);
+            game[y+move[0]][x+move[1]] = '1' + game[y+move[0]][x+move[1]].slice(1);
             break;
           case [1, 0]:
-            game[y+move[0]][x+move[1]] = '' + game[y+move[0]][x+move[1]].slice(1);
+            game[y+move[0]][x+move[1]] = '3' + game[y+move[0]][x+move[1]].slice(1);
             break;
           case [0, 1]:
-            game[y+move[0]][x+move[1]] = '' + game[y+move[0]][x+move[1]].slice(1);
+            game[y+move[0]][x+move[1]] = '2' + game[y+move[0]][x+move[1]].slice(1);
             break;
           case[0, -1]:
-            game[y+move[0]][x+move[1]] = '' + game[y+move[0]][x+move[1]].slice(1);
+            game[y+move[0]][x+move[1]] = '4' + game[y+move[0]][x+move[1]].slice(1);
             break;
         }
       }
