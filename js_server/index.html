@@ -28,6 +28,21 @@
         //update map
       });
 
+      var id = 10;
+      /*
+      getId();
+      function getId() {
+        $.ajax({
+            type: "POST",
+            url: '/id',
+            success: function(id) {
+              console.log(id);
+                id = id;
+            }
+        });
+    };
+
+    */
       function push(e){
         switch (event.which || event.keyCode) {
           case 119:
@@ -86,7 +101,6 @@
         var pos = find_head(mydata["id"], map1, mydata["w"], mydata["h"]);
         var h = mydata["h"];
         var w = mydata["w"];
-        var id = mydata["id"];
         // pos = [51, 50];
         // alert(pos);
 
@@ -199,7 +213,6 @@
 
         ctx.strokeStyle = "black";
         ctx.lineWidth = 0.17;
-        ctx.clearRect(640, 440, 200, 160);
         ctx.strokeRect(640, 440, 200, 160);
 
 /*

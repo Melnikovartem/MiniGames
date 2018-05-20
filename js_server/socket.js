@@ -30,12 +30,14 @@ app.get('/', function(request, response){
   response.sendFile(__dirname + "/index.html");
   let id = -1;
   let  user = false;
+  /*
   for(let j = 0; j<users.length; j++){
     if(users[j]['cookie'].slice(0, -20) == request.headers.cookie.slice(0, -20)){
       user = true;
       break;
     }
   }
+  */
   if (new_id<=20 && !game_on && !user){
     id = new_id;
     new_id +=1;
@@ -44,6 +46,15 @@ app.get('/', function(request, response){
 });
 
 
+//send_id
+app.get('/id', function(request, response){
+for(let j = 0; j<users.length; j++){
+  if(users[j]['cookie'].slice(0, -20) == request.headers.cookie.slice(0, -20)){
+    response.on(id);
+    break;
+  }
+}
+});
 io.on('connection', function(socket){
   socket.on('user.pushButton', function(button){
     for(let i = 0; i<users.length; i++){
@@ -116,7 +127,8 @@ function print(){
 var dead = [];
 
 setInterval(function(){
-if(users.length >= 1 && !game_on)
+  console.log(users);
+if(users.length >= 2 && !game_on)
 {
   //generate position of food/players
 
