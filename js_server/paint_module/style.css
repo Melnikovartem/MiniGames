@@ -1,0 +1,21 @@
+body {
+  background-color: #FFFAF0;
+}
+
+.nav {
+  width: 99%;
+  height: 70px;
+  background-color: #F0FFF0;
+  text-align: center;
+  position: absolute;
+}
+
+.nav_block {
+  font-size: 1.5em;
+  margin-top: 16px;
+}
+
+.main {
+  display: flex;
+  justify-content: center;
+}
