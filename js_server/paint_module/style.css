@@ -7,7 +7,7 @@ body {
   height: 70px;
   background-color: #F0FFF0;
   text-align: center;
-  position: absolute;
+  position: Math.absolute;
 }
 
 .nav_block {

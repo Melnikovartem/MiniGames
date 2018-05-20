@@ -6,8 +6,10 @@ var io = require('socket.io')(server);
 
 server.listen(3000);
 
-var height, len= 200, 200;
-var game, row = [], [];
+var height = 200;
+var len = 200;
+var game = [];
+var row = [];
 
 //empty field
 for(let j =0; j< height; j++){
@@ -31,7 +33,6 @@ app.get('/', function(request, response){
 });
 
 io.on('connection', function(socket){
-  console.log();
   socket.on('user.pushButton', function(button){
     for(let i = 0; i<users.length; i++){
       if(socket.request.headers.cookie == users[i]['cookie']){
@@ -49,11 +50,12 @@ io.on('connection', function(socket){
 //generate food
 for(let k =0; k<100; k++)
   for(let j = 0; j< 1000; j++){
-    let y1, x1= getRandomInt(map.length), getRandomInt(map[0].length);
-    if(map[y1][x1] == '0'){
-      map[y1][x1] = 1;
+    let [y1, x1]= [getRandomInt(game.length), getRandomInt(game[0].length)];
+    if(game[y1][x1] == '0'){
+      game[y1][x1] = 1;
       break;
     }
+  }
 
 
 //some function for game logic
@@ -96,12 +98,12 @@ setInterval(function(){
       }
     }
     //without boost move by 1
-    if(abs(move[0])>abs(move[1] && move[0] != 0){
-      move[0] = move[0]/abs(move[0]);
+    if(Math.abs(move[0])>Math.abs(move[1]) && move[0] != 0){
+      move[0] = move[0]/Math.abs(move[0]);
       move[1] = 0;
     }
     else if(move[1] != 0){
-      move[1] = move[1]/abs(move[1]);
+      move[1] = move[1]/Math.abs(move[1]);
       move[0] = 0;
     }
 
@@ -109,10 +111,10 @@ setInterval(function(){
     var y=0;
     let found = false;
     //find header
-    for(let j = 0; j<map.length; j++){
-      for(let k = 0; k<map[0].length; k++)
-        if(map[j][k][0] != '0')
-          if(map[j][k].slice(1) == user[i]['id'].toString()){
+    for(let j = 0; j<game.length; j++){
+      for(let k = 0; k<game[0].length; k++)
+        if(game[j][k][0] != '0')
+          if(game[j][k].slice(1) == user[i]['id'].toString()){
             y=j;
             x=k;
             found = true;
@@ -123,50 +125,49 @@ setInterval(function(){
     }
 
     //can move
-    if(y+move[0] >= 0 && y+move[0] < map.length && x+move[1] >= 0 && x+move[1] < map[0].length){
-      if(map[y+move[0]][x+move[1]] == '0' || map[y+move[0]][x+move[1]] == '1'){
+    if(y+move[0] >= 0 && y+move[0] < game.length && x+move[1] >= 0 && x+move[1] < game[0].length){
+      if(game[y+move[0]][x+move[1]] == '0' || game[y+move[0]][x+move[1]] == '1'){
         //slice tail
-        if(map[y+move[0]][x+move[1]] != '1'){
+        if(game[y+move[0]][x+move[1]] != '1'){
           let [y1, x1] = find_tail([y,x], [-1, -1]);
-          map[y1][x1] = '0';
+          game[y1][x1] = '0';
         }
         //generate more food
-        if(map[y+move[0]][x+move[1]] == '1'){
+        if(game[y+move[0]][x+move[1]] == '1'){
           for(let j = 0; j< 1000; j++){
-            let y1, x1= getRandomInt(map.length), getRandomInt(map[0].length);
-            if(map[y1][x1] == '0'){
-              map[y1][x1] = 1;
+            let [y1, x1]= [getRandomInt(game.length), getRandomInt(game[0].length)];
+            if(game[y1][x1] == '0'){
+              game[y1][x1] = 1;
               break;
             }
           }
         }
-        map[y+move[0]][x+move[1]] = map[y][x];
-        map[y][x] = '0' + map[y][x].slice(1);
+        game[y+move[0]][x+move[1]] = game[y][x];
+        game[y][x] = '0' + game[y][x].slice(1);
         //turn head
         switch(move){
           case[-1, 0]:
-            map[y+move[0]][x+move[1]] = '' + map[y+move[0]][x+move[1]].slice(1);
+            game[y+move[0]][x+move[1]] = '' + game[y+move[0]][x+move[1]].slice(1);
             break;
           case [1, 0]:
-            map[y+move[0]][x+move[1]] = '' + map[y+move[0]][x+move[1]].slice(1);
+            game[y+move[0]][x+move[1]] = '' + game[y+move[0]][x+move[1]].slice(1);
             break;
           case [0, 1]:
-            map[y+move[0]][x+move[1]] = '' + map[y+move[0]][x+move[1]].slice(1);
+            game[y+move[0]][x+move[1]] = '' + game[y+move[0]][x+move[1]].slice(1);
             break;
           case[0, -1]:
-            map[y+move[0]][x+move[1]] = '' + map[y+move[0]][x+move[1]].slice(1);
+            game[y+move[0]][x+move[1]] = '' + game[y+move[0]][x+move[1]].slice(1);
             break;
         }
       }
-      else(
+      else{
         death([x,y]);
-      )
+      }
     }
-    else(
+    else{
       death([x,y]);
-    )
+    }
   }
-
 
   io.emit('map.update', JSON.stringify(game))
 }, 500);
