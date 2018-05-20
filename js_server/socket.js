@@ -21,16 +21,19 @@ for(let j =0; j< height; j++){
 var users= [];
 var new_id = 10;
 
+var game_on = false;
 app.get('/', function(request, response){
 
   response.sendFile(__dirname + "/index.html");
   let id = -1;
-  if (new_id<=20){
+  if (new_id<=20 && !game_on ){
     id = new_id;
     new_id +=1;
     users.push({id: id, cookie : request.headers.cookie, lastButtons: ''});
   }
+  console.log(users);
 });
+
 
 io.on('connection', function(socket){
   socket.on('user.pushButton', function(button){
@@ -45,21 +48,35 @@ io.on('connection', function(socket){
 
 //generate position of food/players
 
-//to do generation of players
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
+
+for(let i =0; i< users.length; i++)
+  for(let j = 0; j< 1000; j++){
+    let [y1, x1]= [getRandomInt(game.length), getRandomInt(game[0].length)];
+    if(y1+1<game.length && y1-1>=0)
+      if(game[y1][x1] == '0' && game[y1-1][x1] == '0' && game[y1+1][x1] == '0'){
+        game[y1][x1]   = '1' + users[i]['id'].toString();
+        game[y1+1][x1] = '0' + users[i]['id'].toString();
+        break;
+      }
+}
 
 //generate food
-for(let k =0; k<100; k++)
+for(let k =0; k<10; k++)
   for(let j = 0; j< 1000; j++){
     let [y1, x1]= [getRandomInt(game.length), getRandomInt(game[0].length)];
     if(game[y1][x1] == '0'){
-      game[y1][x1] = 1;
+      game[y1][x1] = '1';
       break;
     }
   }
 
 
 //some function for game logic
-function find_tail(pos, last_pos){
+function find_tail(pos, last_pos)
+{
   //to do
 }
 
@@ -68,14 +85,10 @@ function death(pos)
   //to do
 }
 
-function getRandomInt(max) {
-  return Math.floor(Math.random() * Math.floor(max));
-}
-
+if(users.length >= 3){
+  game_on = true;
 setInterval(function(){
   // gamelogic
-
-
 
   //for each player
   for(let i = 0; i< users.length; i++){
@@ -105,6 +118,9 @@ setInterval(function(){
     else if(move[1] != 0){
       move[1] = move[1]/Math.abs(move[1]);
       move[0] = 0;
+    }
+    else{
+      move = [-1,0];
     }
 
     var x=0;
@@ -171,3 +187,5 @@ setInterval(function(){
 
   io.emit('map.update', JSON.stringify(game))
 }, 500);
+
+}
