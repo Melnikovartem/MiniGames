@@ -243,8 +243,27 @@ setInterval(function(){
       dead[k]-=1;
   }
 
-  print();
-  io.emit('map.update', JSON.stringify(game))
+  var ter = {};
+  ter["map"] = game;
+  ter["h"] = qame.length;
+  ter["w"] = game[0].length;
+  ter["color"] = {
+  "10": "black",
+  "11": "blue",
+  "12": "#778899",
+  "13": "#6495ED",
+  "14": "#40E0D0",
+  "15": "#7FFF00",
+  "16": "#EEE8AA",
+  "17": "#CD5C5C",
+  "18": "#FFB6C1",
+  "19": "#9400D3",
+  "20": "#90EE90",
+};
+  ter["list"] = [["Artem", 1234], ["Alex", 945], ["NoName", 12], ["Slava", -10]]; //топ гроков
+  ter["score"] = 12345;
+
+  io.emit('map.update', JSON.stringify(ter))
 }, 500);
 
 }
