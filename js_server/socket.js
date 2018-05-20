@@ -113,7 +113,7 @@ setInterval(function(){
     //find head
     for(let j = 0; j<game.length; j++){
       for(let k = 0; k<game[0].length; k++)
-        if(game[j][k][0] != '0' && game[j][k].length == 3)
+        if(game[j][k].length == 3)
           if(game[j][k].slice(1) == user[i]['id'].toString()){
             y=j;
             x=k;
@@ -126,9 +126,9 @@ setInterval(function(){
 
     //can move
     if(y+move[0] >= 0 && y+move[0] < game.length && x+move[1] >= 0 && x+move[1] < game[0].length){
-      if(game[y+move[0]][x+move[1]] == '0' || game[y+move[0]][x+move[1]] == '1'){
+      if(game[y+move[0]][x+move[1]].length == 1){
         //slice tail
-        if(game[y+move[0]][x+move[1]] != '1'){
+        if(game[y+move[0]][x+move[1]] != '1' || game[y+move[0]][x+move[1]] != '3'){
           let [y1, x1] = find_tail([y,x], [-1, -1]);
           game[y1][x1] = '0';
         }
