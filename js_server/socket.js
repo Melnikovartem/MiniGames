@@ -6,8 +6,16 @@ var io = require('socket.io')(server);
 
 server.listen(3000);
 
+var height, len= 200, 200;
+var game, row = [], [];
 
-var game = [[]];
+//empty field
+for(let j =0; j< height; j++){
+  row = [];
+  for(let k = 0; k< len; k++)
+    row.push('0');
+  game.push(row);
+}
 var users= [];
 var new_id = 10;
 
@@ -34,19 +42,40 @@ io.on('connection', function(socket){
 });
 
 
+//generate position of food/players
+
+//to do generation of players
+
+//generate food
+for(let k =0; k<100; k++)
+  for(let j = 0; j< 1000; j++){
+    let y1, x1= getRandomInt(map.length), getRandomInt(map[0].length);
+    if(map[y1][x1] == '0'){
+      map[y1][x1] = 1;
+      break;
+    }
+
 
 //some function for game logic
 function find_tail(pos, last_pos){
-  if(){}
-  else if(){}
-  else if(){}
-  else if(){}
+  //to do
 }
 
+function death(pos)
+{
+  //to do
+}
 
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
 
 setInterval(function(){
   // gamelogic
+
+
+
+  //for each player
   for(let i = 0; i< users.length; i++){
     var move = [0, 0];
     //find move direction
@@ -94,19 +123,50 @@ setInterval(function(){
     }
 
     //can move
-    if(y+move[0] >= 0 && y+move[0] < map.length && x+move[1] >= 0 && x+move[1] < map[0].length)
+    if(y+move[0] >= 0 && y+move[0] < map.length && x+move[1] >= 0 && x+move[1] < map[0].length){
       if(map[y+move[0]][x+move[1]] == '0' || map[y+move[0]][x+move[1]] == '1'){
         //slice tail
         if(map[y+move[0]][x+move[1]] != '1'){
-          let [y1, x1] = find_tail([y,x], [-1, -1])
+          let [y1, x1] = find_tail([y,x], [-1, -1]);
           map[y1][x1] = '0';
         }
-
+        //generate more food
+        if(map[y+move[0]][x+move[1]] == '1'){
+          for(let j = 0; j< 1000; j++){
+            let y1, x1= getRandomInt(map.length), getRandomInt(map[0].length);
+            if(map[y1][x1] == '0'){
+              map[y1][x1] = 1;
+              break;
+            }
+          }
+        }
         map[y+move[0]][x+move[1]] = map[y][x];
         map[y][x] = '0' + map[y][x].slice(1);
         //turn head
-        switch(move){}
+        switch(move){
+          case[-1, 0]:
+            map[y+move[0]][x+move[1]] = '' + map[y+move[0]][x+move[1]].slice(1);
+            break;
+          case [1, 0]:
+            map[y+move[0]][x+move[1]] = '' + map[y+move[0]][x+move[1]].slice(1);
+            break;
+          case [0, 1]:
+            map[y+move[0]][x+move[1]] = '' + map[y+move[0]][x+move[1]].slice(1);
+            break;
+          case[0, -1]:
+            map[y+move[0]][x+move[1]] = '' + map[y+move[0]][x+move[1]].slice(1);
+            break;
+        }
       }
+      else(
+        death([x,y]);
+      )
+    }
+    else(
+      death([x,y]);
+    )
   }
+
+
   io.emit('map.update', JSON.stringify(game))
 }, 500);
