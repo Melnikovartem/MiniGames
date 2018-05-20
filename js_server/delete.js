@@ -1,5 +1,5 @@
-var height = 10;
-var len = 10;
+var height = 100;
+var len = 100;
 var game = [];
 var row = [];
 
@@ -12,7 +12,10 @@ for(let j =0; j< height; j++){
 }
 var users= [
   {id: 10, cookie : '', lastButtons: ''},
-  {id: 11, cookie : '', lastButtons: ''}
+  {id: 11, cookie : '', lastButtons: ''},
+  {id: 12, cookie : '', lastButtons: ''},
+  {id: 13, cookie : '', lastButtons: ''},
+  {id: 14, cookie : '', lastButtons: ''},
 ];
 
 //generate position of food/players
@@ -33,7 +36,7 @@ for(let i =0; i< users.length; i++)
 }
 
 //generate food
-for(let k =0; k<10; k++)
+for(let k =0; k<1000; k++)
   for(let j = 0; j< 1000; j++){
     let [y1, x1]= [getRandomInt(game.length), getRandomInt(game[0].length)];
     if(game[y1][x1] == '0'){
@@ -42,6 +45,7 @@ for(let k =0; k<10; k++)
     }
   }
 
+/*
 var str;
 for(let i = 0; i< game.length; i++ ){
   str = '';
@@ -52,3 +56,6 @@ for(let i = 0; i< game.length; i++ ){
       str += game[i][j] + ' '
   console.log(str);
 }
+*/
+var fs = require('fs');
+fs.writeFile(__dirname + "/test_map.txt", JSON.stringify(game));
