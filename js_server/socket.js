@@ -6,8 +6,8 @@ var io = require('socket.io')(server);
 
 server.listen(3000);
 
-var height = 10;
-var len = 10;
+var height = 30;
+var len = 30;
 var game = [];
 var row = [];
 
@@ -20,9 +20,6 @@ for(let j =0; j< height; j++){
 }
 
 var users= [
-  {id: 10, cookie : '', lastButtons: ''},
-  {id: 11, cookie : '', lastButtons: ''},
-  {id: 12, cookie : '', lastButtons: ''},
 ];
 
 
@@ -32,7 +29,14 @@ var game_on = false;
 app.get('/', function(request, response){
   response.sendFile(__dirname + "/index.html");
   let id = -1;
-  if (new_id<=20 && !game_on ){
+  let  user = false;
+  for(let j = 0; j<users.length; j++){
+    if(users[j]['cookie'].slice(0, -20) == request.headers.cookie.slice(0, -20)){
+      user = true;
+      break;
+    }
+  }
+  if (new_id<=20 && !game_on && !user){
     id = new_id;
     new_id +=1;
     users.push({id: id, cookie : request.headers.cookie, lastButtons: ''});
@@ -43,7 +47,7 @@ app.get('/', function(request, response){
 io.on('connection', function(socket){
   socket.on('user.pushButton', function(button){
     for(let i = 0; i<users.length; i++){
-      if(socket.request.headers.cookie == users[i]['cookie']){
+      if(socket.request.headers.cookie.slice(0, -20) == users[i]['cookie'].slice(0, -20)){
         users[i]['lastButtons'] += button;
       }
     }
@@ -51,50 +55,25 @@ io.on('connection', function(socket){
 });
 
 
-//generate position of food/players
-
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
 }
-
-for(let i =0; i< users.length; i++)
-  for(let j = 0; j< 1000; j++){
-    let [y1, x1]= [getRandomInt(game.length), getRandomInt(game[0].length)];
-    if(y1+1<game.length && y1-1>=0)
-      if(game[y1][x1] == '0' && game[y1-1][x1] == '0' && game[y1+1][x1] == '0'){
-        game[y1][x1]   = '1' + users[i]['id'].toString();
-        game[y1+1][x1] = '0' + users[i]['id'].toString();
-        game[y1-1][x1] = '1';
-        break;
-      }
-}
-
-//generate food
-for(let k =0; k<10; k++)
-  for(let j = 0; j< 1000; j++){
-    let [y1, x1]= [getRandomInt(game.length), getRandomInt(game[0].length)];
-    if(game[y1][x1] == '0'){
-      game[y1][x1] = '1';
-      break;
-    }
-  }
-
 
 //some function for game logic
 function find_tail(pos, last_pos)
 {
   id = game[pos[0]][pos[1]].slice(1);
   if(pos[0]-1>=0 && (pos[0]-1!=last_pos[0]))
-    if(game[pos[0]-1][pos[1]].slice(1) == id)
+    if(game[pos[0]-1][pos[1]] == '0' + id)
       return find_tail([pos[0]-1,pos[1]], pos)
   if(pos[0]+1<game.length && (pos[0]+1!=last_pos[0]))
-    if(game[pos[0]+1][pos[1]].slice(1) == id)
+    if(game[pos[0]+1][pos[1]] == '0' +  id)
       return find_tail([pos[0]+1,pos[1]], pos)
   if(pos[1]-1>=0 && (pos[1]-1!=last_pos[1]))
-    if(game[pos[0]][pos[1]-1].slice(1) == id)
+    if(game[pos[0]][pos[1]-1] == '0' + id)
       return find_tail([pos[0],pos[1]-1], pos)
   if(pos[1]+1<game[0].length && (pos[1]+1!=last_pos[1]))
-    if(game[pos[0]][pos[1]+1].slice(1) == id)
+    if(game[pos[0]][pos[1]+1] == '0' + id)
       return find_tail([pos[0],pos[1]+1], pos)
   return pos
 }
@@ -103,7 +82,7 @@ function death(pos)
 {
   id = game[pos[0]][pos[1]].slice(1);
   if(getRandomInt(2) == 1)
-    game[pos[0]][pos[1]] = '3';
+    game[pos[0]][pos[1]] = '2';
   else
     game[pos[0]][pos[1]] = '0';
   if(pos[0]-1>=0)
@@ -135,8 +114,34 @@ function print(){
 }
 
 var dead = [];
-if(users.length >= 3)
+
+setInterval(function(){
+if(users.length >= 1 && !game_on)
 {
+  //generate position of food/players
+
+  for(let i =0; i< users.length; i++)
+    for(let j = 0; j< 1000; j++){
+      let [y1, x1]= [getRandomInt(game.length), getRandomInt(game[0].length)];
+      if(y1+1<game.length && y1-1>=0)
+        if(game[y1][x1] == '0' && game[y1-1][x1] == '0' && game[y1+1][x1] == '0'){
+          game[y1][x1]   = '1' + users[i]['id'].toString();
+          game[y1+1][x1] = '0' + users[i]['id'].toString();
+          break;
+        }
+  }
+
+  //generate food
+  for(let k =0; k<10; k++)
+    for(let j = 0; j< 1000; j++){
+      let [y1, x1]= [getRandomInt(game.length), getRandomInt(game[0].length)];
+      if(game[y1][x1] == '0'){
+        game[y1][x1] = '1';
+        break;
+      }
+    }
+
+
 game_on = true;
 setInterval(function(){
   // gamelogic
@@ -144,9 +149,7 @@ setInterval(function(){
   //for each player
   for(let i = 0; i< users.length; i++){
     var move = [0, 0];
-    //find move direction
-    for(let j =0; j<users[i]['lastButtons'].length; j++){
-      switch(users[i]['lastButtons'][j]){
+      switch(users[i]['lastButtons'][users[i]['lastButtons'].length-1]){
         case 'w':
           move[0]-=1;
           break;
@@ -160,20 +163,8 @@ setInterval(function(){
           move[1]+=1;
           break;
       }
-    }
-    //without boost move by 1
-    if(Math.abs(move[0])>Math.abs(move[1]) && move[0] != 0){
-      move[0] = move[0]/Math.abs(move[0]);
-      move[1] = 0;
-    }
-    else if(move[1] != 0){
-      move[1] = move[1]/Math.abs(move[1]);
-      move[0] = 0;
-    }
-    else{
-      move = [-1,0];
-    }
-
+    if(move[0] == 0 && move[1] == 0)
+      move = [-1, 0];
     var x=0;
     var y=0;
     let found = false;
@@ -181,7 +172,7 @@ setInterval(function(){
     for(let j = 0; j<game.length; j++){
       for(let k = 0; k<game[0].length; k++)
         if(game[j][k].length == 3)
-          if(game[j][k].slice(1) == users[i]['id'].toString()){
+          if(game[j][k].slice(1) == users[i]['id'].toString() && game[j][k][0] != '0'){
             y=j;
             x=k;
             found = true;
@@ -194,7 +185,7 @@ setInterval(function(){
     if(y+move[0] >= 0 && y+move[0] < game.length && x+move[1] >= 0 && x+move[1] < game[0].length){
       if(game[y+move[0]][x+move[1]].length == 1){
         //slice tail
-        if(game[y+move[0]][x+move[1]] != '1' && game[y+move[0]][x+move[1]] != '3'){
+        if(game[y+move[0]][x+move[1]] != '1' && game[y+move[0]][x+move[1]] != '2'){
           let [y1, x1] = find_tail([y,x], [-1, -1]);
           game[y1][x1] = '0';
         }
@@ -208,23 +199,15 @@ setInterval(function(){
             }
           }
         }
-        game[y+move[0]][x+move[1]] = game[y][x];
+        if(move[0] == -1 && move[1] == 0)
+            game[y+move[0]][x+move[1]] = '1' + game[y][x].slice(1);
+        else if(move[0] == 1 && move[1] == 0)
+            game[y+move[0]][x+move[1]] = '3' + game[y][x].slice(1);
+        else if(move[0] == 0 && move[1] == 1)
+            game[y+move[0]][x+move[1]] = '2' + game[y][x].slice(1);
+        else if(move[0] == 0 && move[1] == -1)
+            game[y+move[0]][x+move[1]] = '4' + game[y][x].slice(1);
         game[y][x] = '0' + game[y][x].slice(1);
-        //turn head
-        switch(move){
-          case[-1, 0]:
-            game[y+move[0]][x+move[1]] = '1' + game[y+move[0]][x+move[1]].slice(1);
-            break;
-          case [1, 0]:
-            game[y+move[0]][x+move[1]] = '3' + game[y+move[0]][x+move[1]].slice(1);
-            break;
-          case [0, 1]:
-            game[y+move[0]][x+move[1]] = '2' + game[y+move[0]][x+move[1]].slice(1);
-            break;
-          case[0, -1]:
-            game[y+move[0]][x+move[1]] = '4' + game[y+move[0]][x+move[1]].slice(1);
-            break;
-        }
       }
       else{
         dead.push(i);
@@ -245,7 +228,7 @@ setInterval(function(){
 
   var ter = {};
   ter["map"] = game;
-  ter["h"] = qame.length;
+  ter["h"] = game.length;
   ter["w"] = game[0].length;
   ter["color"] = {
   "10": "black",
@@ -260,10 +243,14 @@ setInterval(function(){
   "19": "#9400D3",
   "20": "#90EE90",
 };
+ter['id'] = 10;
+
+/*
   ter["list"] = [["Artem", 1234], ["Alex", 945], ["NoName", 12], ["Slava", -10]]; //топ гроков
   ter["score"] = 12345;
 
+*/
   io.emit('map.update', JSON.stringify(ter))
 }, 500);
 
-}
+}}, 3000);
