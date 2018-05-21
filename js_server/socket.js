@@ -4,10 +4,12 @@ var server = require('http').Server(app);
 
 var io = require('socket.io')(server);
 
+var cookie = require('cookie');
+
 server.listen(3000);
 
-var height = 30;
-var len = 30;
+var height = 100;
+var len = 100;
 var game = [];
 var row = [];
 
@@ -27,38 +29,43 @@ var new_id = 10;
 
 var game_on = false;
 app.get('/', function(request, response){
+  console.log(cookie.parse(request.headers.cookie)['io']);
   response.sendFile(__dirname + "/index.html");
   let id = -1;
   let  user = false;
-  /*
   for(let j = 0; j<users.length; j++){
-    if(users[j]['cookie'].slice(0, -20) == request.headers.cookie.slice(0, -20)){
+    if(users[j]['cookie'] == cookie.parse(request.headers.cookie)['io']){
       user = true;
       break;
     }
   }
-  */
   if (new_id<=20 && !game_on && !user){
     id = new_id;
     new_id +=1;
-    users.push({id: id, cookie : request.headers.cookie, lastButtons: ''});
+    users.push({id: id, cookie : cookie.parse(request.headers.cookie)['io'], lastButtons: ''});
   }
 });
 
 
 //send_id
 app.get('/id', function(request, response){
-for(let j = 0; j<users.length; j++){
-  if(users[j]['cookie'].slice(0, -20) == request.headers.cookie.slice(0, -20)){
-    response.on(id);
-    break;
-  }
+  console.log(users);
+  for(let j = 0; j<users.length; j++){
+      console.log(users[j]['cookie'], cookie.parse(request.headers.cookie)['io']);
+    if(users[j]['cookie'] == cookie.parse(request.headers.cookie)['io']){
+      response.header('Content-type','application/json');
+	    response.header('Charset','utf8');
+	    response.send(JSON.stringify(users[j]['id']));
+
+      break;
+    }
 }
 });
+
 io.on('connection', function(socket){
   socket.on('user.pushButton', function(button){
     for(let i = 0; i<users.length; i++){
-      if(socket.request.headers.cookie.slice(0, -20) == users[i]['cookie'].slice(0, -20)){
+      if(cookie.parse(socket.request.headers.cookie)['io'] == users[i]['cookie']){
         users[i]['lastButtons'] += button;
       }
     }
@@ -71,21 +78,23 @@ function getRandomInt(max) {
 }
 
 //some function for game logic
-function find_tail(pos, last_pos)
+function find_tail(pos, last_pos, i)
 {
+  if(i<5000){
   id = game[pos[0]][pos[1]].slice(1);
   if(pos[0]-1>=0 && (pos[0]-1!=last_pos[0]))
     if(game[pos[0]-1][pos[1]] == '0' + id)
-      return find_tail([pos[0]-1,pos[1]], pos)
+      return find_tail([pos[0]-1,pos[1]], pos, i+1)
   if(pos[0]+1<game.length && (pos[0]+1!=last_pos[0]))
     if(game[pos[0]+1][pos[1]] == '0' +  id)
-      return find_tail([pos[0]+1,pos[1]], pos)
+      return find_tail([pos[0]+1,pos[1]], pos, i+1)
   if(pos[1]-1>=0 && (pos[1]-1!=last_pos[1]))
     if(game[pos[0]][pos[1]-1] == '0' + id)
-      return find_tail([pos[0],pos[1]-1], pos)
+      return find_tail([pos[0],pos[1]-1], pos, i+1)
   if(pos[1]+1<game[0].length && (pos[1]+1!=last_pos[1]))
     if(game[pos[0]][pos[1]+1] == '0' + id)
-      return find_tail([pos[0],pos[1]+1], pos)
+      return find_tail([pos[0],pos[1]+1], pos, i+1)
+  }
   return pos
 }
 
@@ -127,8 +136,7 @@ function print(){
 var dead = [];
 
 setInterval(function(){
-  console.log(users);
-if(users.length >= 2 && !game_on)
+if(users.length >= 3 && !game_on)
 {
   //generate position of food/players
 
@@ -144,7 +152,7 @@ if(users.length >= 2 && !game_on)
   }
 
   //generate food
-  for(let k =0; k<10; k++)
+  for(let k =0; k<500; k++)
     for(let j = 0; j< 1000; j++){
       let [y1, x1]= [getRandomInt(game.length), getRandomInt(game[0].length)];
       if(game[y1][x1] == '0'){
@@ -198,7 +206,7 @@ setInterval(function(){
       if(game[y+move[0]][x+move[1]].length == 1){
         //slice tail
         if(game[y+move[0]][x+move[1]] != '1' && game[y+move[0]][x+move[1]] != '2'){
-          let [y1, x1] = find_tail([y,x], [-1, -1]);
+          let [y1, x1] = find_tail([y,x], [-1, -1], 0);
           game[y1][x1] = '0';
         }
         //generate more food
@@ -255,7 +263,6 @@ setInterval(function(){
   "19": "#9400D3",
   "20": "#90EE90",
 };
-ter['id'] = 10;
 
 /*
   ter["list"] = [["Artem", 1234], ["Alex", 945], ["NoName", 12], ["Slava", -10]]; //топ гроков

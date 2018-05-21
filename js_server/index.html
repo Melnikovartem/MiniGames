@@ -20,6 +20,7 @@
     <div class="main"  >
       <canvas width="840" height="600" id="canvas"></canvas>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" charset="utf-8"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js" charset="utf-8"></script>
     <script>
       var socket = io();
@@ -28,21 +29,21 @@
         //update map
       });
 
-      var id = 10;
-      /*
+      var id = '10';
       getId();
       function getId() {
-        $.ajax({
-            type: "POST",
-            url: '/id',
-            success: function(id) {
-              console.log(id);
-                id = id;
-            }
-        });
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange=function() {
+          if (this.readyState == 4 && this.status == 200) {
+            id = this.response;
+
+          }
+        };
+        xhttp.open("GET", "/id");
+        xhttp.send();
     };
 
-    */
+
       function push(e){
         switch (event.which || event.keyCode) {
           case 119:
@@ -79,8 +80,8 @@
         var map = [];
         var color = mydata["color"];
         var list = mydata["list"];
-        var n = 40;
-        var max_x = 21;
+        var n = 30;
+        var max_x = 25;
         var max_y = 15;
 
 
@@ -97,8 +98,7 @@
             ctx.strokeRect(i*n, j*n, n, n);
           }
         }
-
-        var pos = find_head(mydata["id"], map1, mydata["w"], mydata["h"]);
+        var pos = find_head(id, map1, mydata["w"], mydata["h"]);
         var h = mydata["h"];
         var w = mydata["w"];
         // pos = [51, 50];
