@@ -143,7 +143,7 @@ function print(){
 }
 
 var dead = [];
-
+var game_id = 0;
 setInterval(function(){
 if(users.length >= 1 && !game_on)
 {
@@ -160,7 +160,6 @@ if(users.length >= 1 && !game_on)
           break;
         }
   }
-
   //generate food
   for(let k =0; k<500; k++)
     for(let j = 0; j< 1000; j++){
@@ -173,7 +172,7 @@ if(users.length >= 1 && !game_on)
 
 
 game_on = true;
-setInterval(function(){
+game_id = setInterval(function(){
   // gamelogic
 
   //for each player
@@ -246,7 +245,6 @@ setInterval(function(){
     for(let k = 0; k< dead.length;k++)
       dead[k]-=1;
   }
-
   var ter = {};
   ter["map"] = game;
   ter["h"] = game.length;
@@ -270,7 +268,23 @@ setInterval(function(){
   ter["score"] = 12345;
 
 */
-  io.emit('map.update', JSON.stringify(ter))
+  io.emit('map.update', JSON.stringify(ter));
+  if(users.length == 0)
+  {
+    clearInterval(game_id);
+    new_id = 10;
+    game_on = false;
+
+    game = []
+    //empty field
+    for(let j =0; j< height; j++){
+      row = [];
+      for(let k = 0; k< len; k++)
+        row.push('0');
+      game.push(row);
+    }
+
+  }
 }, 200);
 
 }}, 3000);
