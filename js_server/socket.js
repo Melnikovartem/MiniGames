@@ -13,14 +13,6 @@ var len = 100;
 var game = [];
 var row = [];
 
-//empty field
-for(let j =0; j< height; j++){
-  row = [];
-  for(let k = 0; k< len; k++)
-    row.push('0');
-  game.push(row);
-}
-
 var users= [
 ];
 
@@ -146,9 +138,20 @@ var dead = [];
 var game_id = 0;
 var time_max = 1000;
 var food = 500;
+var users_start = 3;
+var users_end = 1;
 setInterval(function(){
-if(users.length >= 1 && !game_on)
+if(users.length >= users_start && !game_on)
 {
+
+  game = [];
+  //empty field
+  for(let j =0; j< height; j++){
+    row = [];
+    for(let k = 0; k< len; k++)
+      row.push('0');
+    game.push(row);
+  }
   //generate position of food/players
 
   for(let i =0; i< users.length; i++)
@@ -270,21 +273,12 @@ game_id = setInterval(function(){
 
 */
   io.emit('map.update', JSON.stringify(ter));
-  if(users.length == 0)
+  if(users.length == users_end)
   {
     clearInterval(game_id);
     new_id = 10;
     game_on = false;
-
-    game = []
-    //empty field
-    for(let j =0; j< height; j++){
-      row = [];
-      for(let k = 0; k< len; k++)
-        row.push('0');
-      game.push(row);
-    }
-
+    users = [];
   }
 }, 200);
 }}, time_max);
