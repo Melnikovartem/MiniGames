@@ -29,30 +29,32 @@ var new_id = 10;
 
 var game_on = false;
 app.get('/', function(request, response){
-  console.log(cookie.parse(request.headers.cookie)['io']);
-  response.sendFile(__dirname + "/index.html");
   let id = -1;
   let  user = false;
   for(let j = 0; j<users.length; j++){
-    if(users[j]['cookie'] == cookie.parse(request.headers.cookie)['io']){
+    if(typeof cookie.parse(request.headers.cookie)['snak3r'] !== 'undefined')
+    if(users[j]['cookie'] == cookie.parse(request.headers.cookie)['snak3r']){
       user = true;
       break;
     }
   }
   if (new_id<=20 && !game_on && !user){
+    var randomNumber=Math.random().toString();
+    randomNumber=randomNumber.substring(2,randomNumber.length);
+    response.cookie('snak3r',randomNumber, { maxAge: 900000, httpOnly: true });
     id = new_id;
     new_id +=1;
-    users.push({id: id, cookie : cookie.parse(request.headers.cookie)['io'], lastButtons: ''});
+    users.push({id: id, cookie : randomNumber, lastButtons: '', snake:[]});
   }
+  response.sendFile(__dirname + "/index.html");
 });
 
 
 //send_id
 app.get('/id', function(request, response){
-  console.log(users);
   for(let j = 0; j<users.length; j++){
-      console.log(users[j]['cookie'], cookie.parse(request.headers.cookie)['io']);
-    if(users[j]['cookie'] == cookie.parse(request.headers.cookie)['io']){
+    if(typeof cookie.parse(request.headers.cookie)['snak3r'] !== 'undefined')
+    if(users[j]['cookie'] == cookie.parse(request.headers.cookie)['snak3r']){
       response.header('Content-type','application/json');
 	    response.header('Charset','utf8');
 	    response.send(JSON.stringify(users[j]['id']));
@@ -65,7 +67,8 @@ app.get('/id', function(request, response){
 io.on('connection', function(socket){
   socket.on('user.pushButton', function(button){
     for(let i = 0; i<users.length; i++){
-      if(cookie.parse(socket.request.headers.cookie)['io'] == users[i]['cookie']){
+      if(typeof cookie.parse(socket.request.headers.cookie)['snak3r'] !== 'undefined')
+      if(users[i]['cookie'] == cookie.parse(socket.request.headers.cookie)['snak3r']){
         users[i]['lastButtons'] += button;
       }
     }
@@ -101,10 +104,16 @@ function find_tail(pos, last_pos, i)
 function death(pos)
 {
   id = game[pos[0]][pos[1]].slice(1);
-  if(getRandomInt(2) == 1)
-    game[pos[0]][pos[1]] = '2';
+  if(game[pos[0]][pos[1]][0] == '0')
+  {
+    if(getRandomInt(2) == 1)
+      game[pos[0]][pos[1]] = '2';
+    else
+      game[pos[0]][pos[1]] = '0';
+  }
   else
-    game[pos[0]][pos[1]] = '0';
+    game[pos[0]][pos[1]] = '1' + game[pos[0]][pos[1]].slice(1);
+
   if(pos[0]-1>=0)
     if(game[pos[0]-1][pos[1]].slice(1) == id)
       death([pos[0]-1,pos[1]])
@@ -136,7 +145,7 @@ function print(){
 var dead = [];
 
 setInterval(function(){
-if(users.length >= 3 && !game_on)
+if(users.length >= 1 && !game_on)
 {
   //generate position of food/players
 
@@ -147,6 +156,7 @@ if(users.length >= 3 && !game_on)
         if(game[y1][x1] == '0' && game[y1-1][x1] == '0' && game[y1+1][x1] == '0'){
           game[y1][x1]   = '1' + users[i]['id'].toString();
           game[y1+1][x1] = '0' + users[i]['id'].toString();
+          users[i]['snake'] = [[y1+1,x1],[y1,x1]];
           break;
         }
   }
@@ -185,28 +195,18 @@ setInterval(function(){
       }
     if(move[0] == 0 && move[1] == 0)
       move = [-1, 0];
-    var x=0;
-    var y=0;
+    var [y,x] = users[i]['snake'][users[i]['snake'].length-1];
     let found = false;
-    //find head
-    for(let j = 0; j<game.length; j++){
-      for(let k = 0; k<game[0].length; k++)
-        if(game[j][k].length == 3)
-          if(game[j][k].slice(1) == users[i]['id'].toString() && game[j][k][0] != '0'){
-            y=j;
-            x=k;
-            found = true;
-            break;
-          }
-      if(found)
-        break;
-    }
     //can move
     if(y+move[0] >= 0 && y+move[0] < game.length && x+move[1] >= 0 && x+move[1] < game[0].length){
+      if(users[i]['snake'][users[i]['snake'].length-2][0] == y+move[0] && users[i]['snake'][users[i]['snake'].length-2][1] == x+move[1]){
+          move[0] = -move[0];
+          move[1] = -move[1];
+      }
       if(game[y+move[0]][x+move[1]].length == 1){
         //slice tail
         if(game[y+move[0]][x+move[1]] != '1' && game[y+move[0]][x+move[1]] != '2'){
-          let [y1, x1] = find_tail([y,x], [-1, -1], 0);
+          let [y1, x1] = users[i]['snake'].splice(0,1)[0];
           game[y1][x1] = '0';
         }
         //generate more food
@@ -227,6 +227,7 @@ setInterval(function(){
             game[y+move[0]][x+move[1]] = '2' + game[y][x].slice(1);
         else if(move[0] == 0 && move[1] == -1)
             game[y+move[0]][x+move[1]] = '4' + game[y][x].slice(1);
+        users[i]['snake'].push([y+move[0], x+move[1]])
         game[y][x] = '0' + game[y][x].slice(1);
       }
       else{
@@ -240,8 +241,8 @@ setInterval(function(){
     }
   }
   while(dead.length > 0){
-    users.splice(dead[0], 1)
-    dead.splice(0, 1)
+    users.splice(dead[0], 1);
+    dead.splice(0, 1);
     for(let k = 0; k< dead.length;k++)
       dead[k]-=1;
   }
@@ -270,6 +271,6 @@ setInterval(function(){
 
 */
   io.emit('map.update', JSON.stringify(ter))
-}, 500);
+}, 200);
 
 }}, 3000);
