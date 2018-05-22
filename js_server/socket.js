@@ -144,6 +144,8 @@ function print(){
 
 var dead = [];
 var game_id = 0;
+var time_max = 1000;
+var food = 500;
 setInterval(function(){
 if(users.length >= 1 && !game_on)
 {
@@ -161,7 +163,7 @@ if(users.length >= 1 && !game_on)
         }
   }
   //generate food
-  for(let k =0; k<500; k++)
+  for(let k =0; k<food; k++)
     for(let j = 0; j< 1000; j++){
       let [y1, x1]= [getRandomInt(game.length), getRandomInt(game[0].length)];
       if(game[y1][x1] == '0'){
@@ -169,7 +171,6 @@ if(users.length >= 1 && !game_on)
         break;
       }
     }
-
 
 game_on = true;
 game_id = setInterval(function(){
@@ -286,5 +287,4 @@ game_id = setInterval(function(){
 
   }
 }, 200);
-
-}}, 3000);
+}}, time_max);
