@@ -1,0 +1,30 @@
+.list {
+  margin-left: 2%;
+}
+
+.cent {
+  display: flex;
+  justify-content: center;
+}
+
+.text {
+  font-size: 30px;
+}
+
+.main {
+
+}
+
+.tabler {
+  margin: 2%;
+  width: 96%;
+}
+
+.active1 {
+  background-color: #CFCFCF;
+}
+
+.default {
+  font-size: 20px;
+
+}

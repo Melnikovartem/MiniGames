@@ -128,7 +128,7 @@ var dead = [];
 
 setInterval(function(){
   console.log(users);
-if(users.length >= 2 && !game_on)
+if(users.length >= 1 && !game_on)
 {
   //generate position of food/players
 
@@ -144,7 +144,7 @@ if(users.length >= 2 && !game_on)
   }
 
   //generate food
-  for(let k =0; k<10; k++)
+  for(let k =0; k<30; k++)
     for(let j = 0; j< 1000; j++){
       let [y1, x1]= [getRandomInt(game.length), getRandomInt(game[0].length)];
       if(game[y1][x1] == '0'){

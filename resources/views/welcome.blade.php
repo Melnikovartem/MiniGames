@@ -1,23 +1,18 @@
 <!doctype html>
-<html lang="{{ app()->getLocale() }}">
+<html>
     <head>
         <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-
-        <title>Laravel</title>
+        <title>MRGames</title>
 
         <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
 
-        <!-- Styles -->
         <style>
             html, body {
-                background-color: #fff;
+                background-color: #F0FFFF;
                 color: #636b6f;
                 font-family: 'Raleway', sans-serif;
                 font-weight: 100;
-                height: 100vh;
                 margin: 0;
             }
 
@@ -46,10 +41,10 @@
             }
 
             .title {
-                font-size: 84px;
+                font-size: 44px;
             }
 
-            .links > a {
+            .links {
                 color: #636b6f;
                 padding: 0 25px;
                 font-size: 12px;
@@ -61,6 +56,9 @@
 
             .m-b-md {
                 margin-bottom: 30px;
+            }
+            .text {
+              font-size: 24px;
             }
         </style>
     </head>
@@ -78,17 +76,18 @@
             @endif
 
             <div class="content">
-                <div class="title m-b-md">
-                    Laravel
+                <div class="title">
+                    Добро пожаловать на наш сайт с мини-играми!
+                </div>
+                <div class="text">
+                  Здесь вы найдете множество интересных игр, в которые сможете поиграть с друзьями онлайн!
+                </div>
+                <img src="{{asset('img/snake.png')}}" width="50%">
+                <div class="text">
+                  <a href="{{ url('/game/1') }}">Пошли играть!</a>
                 </div>
 
-                <div class="links">
-                    <a href="https://laravel.com/docs">Documentation</a>
-                    <a href="https://laracasts.com">Laracasts</a>
-                    <a href="https://laravel-news.com">News</a>
-                    <a href="https://forge.laravel.com">Forge</a>
-                    <a href="https://github.com/laravel/laravel">GitHub</a>
-                </div>
+
             </div>
         </div>
     </body>
