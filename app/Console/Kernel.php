@@ -30,7 +30,7 @@ class Kernel extends ConsoleKernel
         $sessions = Session::where('active', 1);
         //check users
         foreach($sessions as $session){
-        $game = Game::findOrFail($session->game_id)
+          $game = Game::findOrFail($session->game_id);
           if($session->users()->count() == $game->start_users){
             Redis::publish($game->name + ':new_game', json_encode($session->users()));
           }

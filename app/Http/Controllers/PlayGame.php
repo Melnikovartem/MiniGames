@@ -8,21 +8,28 @@ use Illuminate\Console\Scheduling\Schedule;
 use App\Session;
 use App\Session_User;
 use App\Game;
+use Auth;
 
 class PlayGame extends Controller
 {
     public function game($game_id){
-      //make new session or add to old one
-      if(Auth::User()){
-        $session = Session->where('active', 1)->where('game_id',$game_id)->firstOrNew(['gam_id' => $game_id]);
+      //make new session or add to old on
+      if(Auth::check()){
+        $session = Session::where('status', 1)->where('game_id', $game_id)
+          ->first();
+        if(!$session){
+          $session = new Session;
+          $session->game_id = $game_id;
+        }
         $game = Game::findOrFail($session->game_id);
-        if($session->users()->count() >= $game->users_start)
+        if($session->users()->count() >= $game->start_users)
           return redirect('/');
         $session_user = new Session_User();
         $session_user->user_id = Auth::User()->id;
         $session_user->session_id = $session->id;
-        $session_user->code = str_rand(10 only digit)
-        return redirect('/ready/' + $session->id);
+        $session_user->code = str_random(10);
+        \Log::debug($session);
+        return redirect('/ready/' . (string)$session->id);
       }
       else
         return view('no_user');
@@ -30,7 +37,7 @@ class PlayGame extends Controller
 
     public function wait($ses){
 
-      if(Auth::User()){
+      if(Auth::check()){
         $session = Session::findOrFail($ses);
         $game = Game::findOrFail($session->game_id);
         $session_user = Session_User::where('user_id', Auth::User()->id);

@@ -46,7 +46,7 @@
                 <img src="{{ asset('img/like.png') }}" width="30px" height="30px;"> likes: {{ $likes }}
               </div>
               <div class="cent default">
-                <a href="{{ url($gamen->domain) }}"><button type="button" class="btn btn-success btn-lg">Играть!</button></a>
+                <a href="{{ url('/play/' . $gamen->id) }}"><button type="button" class="btn btn-success btn-lg">Играть!</button></a>
               </div>
 
             </td>
