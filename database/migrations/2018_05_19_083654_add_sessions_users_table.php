@@ -17,6 +17,7 @@ class AddSessionsUsersTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('session_id');
+            $table->unique('code');
             $table->timestamps();
         });
     }

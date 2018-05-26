@@ -18,6 +18,8 @@ class AddGamesTable extends Migration
             $table->string('name');
             $table->text('description');
             $table->string('domain');
+            $table->integer('start_users');
+            $table->integer('finish_users');
             $table->timestamps();
         });
     }
