@@ -20,6 +20,7 @@ class AddGamesTable extends Migration
             $table->string('domain');
             $table->integer('start_users');
             $table->integer('finish_users');
+            $table->string('image');
             $table->timestamps();
         });
     }
