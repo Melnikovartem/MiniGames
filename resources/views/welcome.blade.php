@@ -4,8 +4,8 @@
         <meta charset="utf-8">
         <title>MRGames</title>
 
-        <!-- Fonts -->
         <link href="https://fonts.googleapis.com/css?family=Raleway:100,600" rel="stylesheet" type="text/css">
+        <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
         <style>
             html, body {
@@ -84,7 +84,7 @@
                 </div>
                 <img src="{{asset('img/snake.png')}}" width="50%">
                 <div class="text">
-                  <a href="{{ url('/game/1') }}">Пошли играть!</a>
+                  <a href="{{ url('/game/0') }}">Пошли играть!</a>
                 </div>
 
 

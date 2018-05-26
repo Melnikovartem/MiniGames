@@ -18,6 +18,7 @@ class AddGamesTable extends Migration
             $table->string('name');
             $table->text('description');
             $table->string('domain');
+            $table->string('image');
             $table->timestamps();
         });
     }

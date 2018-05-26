@@ -8,5 +8,8 @@ class Result extends Model
 {
     protected $table = 'results';
 
-    
+    // public function top($gid) {
+    //
+    // }
+
 }
