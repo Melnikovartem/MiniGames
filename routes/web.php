@@ -24,3 +24,4 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 Route::get('/play/{game_id}', 'PlayGame@game');
 Route::get('/ready/{session}', 'PlayGame@wait');
+Route::post('/winner/{session_id}/password/{winner_code}', 'PLayGame@winner');

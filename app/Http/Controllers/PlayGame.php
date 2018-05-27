@@ -9,6 +9,7 @@ use App\Session;
 use App\Session_User;
 use App\Game;
 use Auth;
+use App\Result;
 
 class PlayGame extends Controller
 {
@@ -29,7 +30,7 @@ class PlayGame extends Controller
         return redirect('/ready/' . (string)$session->id);
       }
       else
-        return view('no_user');
+        return redirect('/login');
     }
 
     public function wait($ses){
@@ -41,6 +42,26 @@ class PlayGame extends Controller
         return view($game->domain, ['session' => $session->id, 'code' => $session_user->code]);
       }
       else
-        return view('no_user');
+        return redirect('/login');
+    }
+
+    public function winner($session_id, $winner_code){
+
+      \Log::debug($session_id . $winner_code);
+      $session = Session::findOrFail($session_id);
+      $session->status = 0;
+      $session->save();
+
+      $users = $session->users();
+      foreach($users as $user){
+        $result = new Result;
+        $result->user_id=$user->user_id;
+        $result->game_id=$session->game_id;
+        if($user->code ==  $winner_code)
+          $result->status = 1;
+        else
+          $result->status = -1;
+        $result->save();
+      }
     }
 }

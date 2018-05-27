@@ -17,7 +17,6 @@ class AddResultsTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('game_id');
             $table->unsignedInteger('user_id');
-            $table->unsignedInteger('enemy_id');
             $table->integer('status');
             $table->timestamps();
         });

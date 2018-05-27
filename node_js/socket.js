@@ -1,4 +1,6 @@
 var server = require('http').Server();
+var http = require('http');
+var querystring = require('querystring');
 
 var io = require('socket.io')(server);
 
@@ -60,7 +62,7 @@ function play(users, session){
   let len = 100;
   let dead = [];
   let food = 500;
-  let users_end = 0;
+  let users_end = 1;
   let tick = 200;
 
   let game = [];
@@ -193,9 +195,7 @@ function play(users, session){
       if(alive == users_end)
       {
         clearInterval(game_id);
-        new_id = 10;
-        game_on = false;
-        users = [];
+        http.get('http://127.0.0.1:8000/winner/'+ session +'/password/'+ users[0]['code']);
       }
     }, tick);
 }
@@ -204,7 +204,7 @@ io.on('connection', function(socket){
   socket.on('connected', function(session){
     if(typeof users_connected[session] == 'undefined')
       users_connected[session] = [];
-    users_connected[session].push(socket);
+      users_connected[session].push(socket);
     socket.join(session);
   })
 });
