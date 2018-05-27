@@ -20,3 +20,5 @@ Auth::routes();
 Route::get('/game/{id}', 'GamesController@games');
 Route::get('/user', 'GamesController@user');
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::post('/game/{id}', 'GamesController@make_like');

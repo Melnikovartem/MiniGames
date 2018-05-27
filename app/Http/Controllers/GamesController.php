@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Game;
 use App\User;
+use App\Like;
 
 class GamesController extends Controller
 {
@@ -39,7 +40,13 @@ class GamesController extends Controller
       return view('user', ['user' => $user, 'likes' => $likes, 'results' => $res]);
     }
 
-
+    public function make_like($gid) {
+      $like = new Like();
+      $like->user_id = Auth::User()->id;
+      $like->game_id = $gid;
+      $like->save();
+      return redirect('/game/'.$gid);
+    }
 
     public function games($id) {
       if (!Auth::check()) {

@@ -46,7 +46,11 @@
               </div><hr>
 
               <div class="cent default">
-                <img src="{{ asset('img/like.png') }}" width="30px" height="30px;"> likes: {{ $likes }}
+                <form method="POST">
+                  @csrf
+                  <img src="{{ asset('img/like.png') }}" width="30px" height="30px;"> likes: {{ $likes }}
+                  <input type="submit" value="Оценть" name="ok">
+                </form>
               </div>
               <div class="cent default">
                 <img src="{{ asset('img/comment.png') }}" width="30px" height="30px;"> comments: {{ count($gamen->comments) }}
