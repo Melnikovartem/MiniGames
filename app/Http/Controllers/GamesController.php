@@ -17,9 +17,29 @@ class GamesController extends Controller
       if (!Auth::check()) {
         return redirect('/login');
       }
+      $likes = User::likes();
       $user = User::findOrFail(Auth::User()->id);
-      return view('user', ['user' => $user]);
+      $results = User::results();
+
+      $i = 0;
+      $res = array();
+      foreach ($results as $result) {
+        // if ($i > 5)
+        //   break;
+        $res[$i]['name'] = Game::findOrFail($result->game_id)->name;
+        if ($result->status == 1)
+          $res[$i]['st'] = 'Победа';
+        else if ($result->status == 0)
+          $res[$i]['st'] = 'Ничья';
+        else
+          $res[$i]['st'] = 'Поражение';
+        $i++;
+      }
+
+      return view('user', ['user' => $user, 'likes' => $likes, 'results' => $res]);
     }
+
+
 
     public function games($id) {
       if (!Auth::check()) {

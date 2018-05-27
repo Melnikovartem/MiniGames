@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Auth;
 
 class User extends Authenticatable
 {
@@ -26,4 +27,14 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public static function likes() {
+      $likes = Like::where('user_id', '=', Auth::User()->id)->get();
+      return count($likes);
+    }
+
+    public static function results() {
+      $res = Result::where('user_id', '=', Auth::User()->id)->get();
+      return $res;
+    }
 }

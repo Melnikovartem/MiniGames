@@ -17,6 +17,8 @@ class AddCommentsTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('game_id');
+            $table->string('title');
+            $table->string('author');
             $table->text('text');
             $table->timestamps();
         });

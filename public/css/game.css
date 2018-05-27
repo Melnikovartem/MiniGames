@@ -32,3 +32,8 @@
 .lin {
   display:inline-block;
 }
+
+#res {
+  width: 100%;
+  border: 1px;
+}
