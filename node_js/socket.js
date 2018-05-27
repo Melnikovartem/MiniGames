@@ -7,11 +7,6 @@ var redis = new Redis();
 
 redis.subscribe('snake:new_game');
 
-redis.on('message', function(channel, message) {
-    message = JSON.parse(message);
-    console.log(message);
-});
-
 //some function for game logic
 function getRandomInt(max) {
   return Math.floor(Math.random() * Math.floor(max));
@@ -47,11 +42,17 @@ function death(pos, game)
 //[{name: 'name', code: 'wqdqwe123S'}]
 function play(users, session){
 
-for(let i =0; i< users.length; i++){
-    io.on(user['code'] + ':pushButton', function(button){
-          users[i]['lastButtons'] += button;
+  let data = [];
+  for(let i =0; i< users.length; i++){
+    io.on('connection', function(socket){
+      socket.on(i + ':pushButton', function(button){
+            users[i]['lastButtons'] += button;
+      });
     });
-    users[i]['snake'] = []
+    users[i]['snake'] = [];
+    users[i]['id'] = 10+i;
+    users[i]['lastButtons'] = 'w';
+    data.push({'code': users[i]['code'], 'id': 10+i});
   }
 
   let height = 100;
@@ -92,8 +93,7 @@ for(let i =0; i< users.length; i++){
           break;
         }
       }
-    let data = {};// to do
-    io.emit(session + ':game_start', JSON.stringify(data))
+    io.emit(session + ':game_start', JSON.stringify(data));
     let game_id = setInterval(function(){
       // gamelogic
 
@@ -200,3 +200,11 @@ for(let i =0; i< users.length; i++){
       }
     }, tick);
 }
+
+
+redis.on('message', function(channel, message) {
+    message = JSON.parse(message);
+    play(message['users'], message['session']);
+});
+
+server.listen(3000);

@@ -7,6 +7,7 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\Redis;
 use App\Session;
 use App\Game;
+use App\User;
 
 class Kernel extends ConsoleKernel
 {
@@ -31,12 +32,14 @@ class Kernel extends ConsoleKernel
         $sessions = Session::where('status', 1)->get();
         //check users
         foreach($sessions as $session){
-          \Log::debug($session);
           $game = Game::findOrFail($session->game_id);
-          \Log::debug($session->users()->get());
-          \Log::debug($game->start_users);
           if($session->users()->count() == $game->start_users){
-            Redis::publish($game->name . ':new_game', json_encode($session->users()));
+            $data = [];
+            foreach($session->users()->get() as $session_user){
+              $user = User::find($session_user->user_id);
+              array_push($data, ['name'=>$user->name, 'code'=>$session_user->code]);
+            }
+            Redis::publish($game->name . ':new_game', json_encode(['users' => $data, 'session' => $session->id]));
           }
         }
       })->everyMinute();

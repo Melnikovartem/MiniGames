@@ -20,21 +20,28 @@
     <div class="main"  >
       <canvas width="840" height="600" id="canvas"></canvas>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" charset="utf-8"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js" charset="utf-8"></script>
     <script>
-    var session ={{ $session }};
-    var code = {{ $code }};
-      var socket = io();
-      socket.on('map.update', function(map){
-        render(map);
-        //update map
+    var session = '{{ $session }}';
+    var code = '{{ $code }}';
+    var socket = io('localhost:3000');
+    var id = '10';
+    socket.on(session + ':map.update', function(map){
+      render(map);
+    });
+    socket.on(session + ':game_start', function(users){
+        users = JSON.parse(users);
+        for(let i = 0; i<users.length; i++){
+          if(users['code'] == code){
+            id = users['id'];
+            break;
+          }
+        }
       });
-
-      var id = '10';
 
 
       function push(e){
+        console.log(code + ':pushButton');
         switch (event.which || event.keyCode) {
           case 119:
             socket.emit(code + ':pushButton', 'w')
@@ -48,7 +55,6 @@
           case 100:
             socket.emit(code + ':pushButton', 'd')
             break;
-
         }
       }
 
