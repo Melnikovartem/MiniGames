@@ -10,6 +10,6 @@ class Session_User extends Model
 
     public function session()
     {
-        return $this->hasOne('App\Session', 'session_id', 'id');
+        return $this->hasOne('App\Session', 'id', 'session_id');
     }
 }

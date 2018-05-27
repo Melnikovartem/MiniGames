@@ -4,6 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Redis;
 use App\Session;
 use App\Game;
 
@@ -27,12 +28,15 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
       $schedule->call(function () {
-        $sessions = Session::where('active', 1);
+        $sessions = Session::where('status', 1)->get();
         //check users
         foreach($sessions as $session){
+          \Log::debug($session);
           $game = Game::findOrFail($session->game_id);
+          \Log::debug($session->users()->get());
+          \Log::debug($game->start_users);
           if($session->users()->count() == $game->start_users){
-            Redis::publish($game->name + ':new_game', json_encode($session->users()));
+            Redis::publish($game->name . ':new_game', json_encode($session->users()));
           }
         }
       })->everyMinute();
