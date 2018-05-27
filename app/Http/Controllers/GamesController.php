@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Game;
 use App\User;
 use App\Like;
+use App\Comment;
 
 class GamesController extends Controller
 {
@@ -45,6 +46,26 @@ class GamesController extends Controller
       $like->user_id = Auth::User()->id;
       $like->game_id = $gid;
       $like->save();
+      return redirect('/game/'.$gid);
+    }
+
+    public function comment($gid) {
+      if (!Auth::check()) {
+        return redirect('/login');
+      }
+      $user = User::findOrFail(Auth::User()->id)->name;
+      $game = Game::findOrFail($gid)->name;
+      return view('comment', ['name' => $user, 'gamen' => $game, 'gid' => $gid]);
+    }
+
+    public function make_comment(Request $request, $gid) {
+      $comment = new Comment();
+      $comment->user_id = Auth::User()->id;
+      $comment->game_id = $gid;
+      $comment->title = $request->title;
+      $comment->text = $request->comment;
+      $comment->author = $request->name;
+      $comment->save();
       return redirect('/game/'.$gid);
     }
 

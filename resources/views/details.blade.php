@@ -55,7 +55,9 @@
               <div class="cent default">
                 <img src="{{ asset('img/comment.png') }}" width="30px" height="30px;"> comments: {{ count($gamen->comments) }}
               </div>
-
+              <div class="cent">
+                <a href = "{{ url('/comment') }}/{{$gamen->id}}"><button type="button" class="btn btn-success btn-sm">Добавить комментарий</button></a>
+              </div>
             </td>
             <td>
               <img src="{{ asset('img/'.$gamen->image) }}" width="100%">

@@ -1,10 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-
-  <?php
-
-   ?>
   <div class="cent text">
     {{ $user->name }}, приветсвую!
   </div>

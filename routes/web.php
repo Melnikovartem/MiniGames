@@ -19,6 +19,8 @@ Auth::routes();
 
 Route::get('/game/{id}', 'GamesController@games');
 Route::get('/user', 'GamesController@user');
+Route::get('/comment/{id}', 'GamesController@comment');
 Route::get('/home', 'HomeController@index')->name('home');
 
 Route::post('/game/{id}', 'GamesController@make_like');
+Route::post('/comment/{id}', 'GamesController@make_comment');
