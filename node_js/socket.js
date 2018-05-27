@@ -39,18 +39,19 @@ function death(pos, game)
       death([pos[0],pos[1]+1], game)
 }
 
-//[{name: 'name', code: 'wqdqwe123S'}]
-function play(users, session){
+users_connected = {};
+socket_room = {};
 
+function play(users, session){
   let data = [];
   for(let i =0; i< users.length; i++){
-    io.on('connection', function(socket){
-      socket.on(i + ':pushButton', function(button){
+    for(let j =0; j<users_connected[session].length; j++)
+      users_connected[session][j].on(users[i]['code'] + ':pushButton', function(button){
             users[i]['lastButtons'] += button;
       });
-    });
     users[i]['snake'] = [];
     users[i]['id'] = 10+i;
+    users[i]['alive'] = 1;
     users[i]['lastButtons'] = 'w';
     data.push({'code': users[i]['code'], 'id': 10+i});
   }
@@ -59,7 +60,7 @@ function play(users, session){
   let len = 100;
   let dead = [];
   let food = 500;
-  let users_end = 1;
+  let users_end = 0;
   let tick = 200;
 
   let game = [];
@@ -93,79 +94,77 @@ function play(users, session){
           break;
         }
       }
-    io.emit(session + ':game_start', JSON.stringify(data));
+    io.to(session).emit('game_start', JSON.stringify(data));
     let game_id = setInterval(function(){
       // gamelogic
 
       //for each player
+      alive = 0;
       for(let i = 0; i< users.length; i++){
-        var move = [0, 0];
-          switch(users[i]['lastButtons'][users[i]['lastButtons'].length-1]){
-            case 'w':
-              move[0]-=1;
-              break;
-            case 's':
-              move[0]+=1;
-              break;
-            case 'a':
-              move[1]-=1;
-              break;
-            case 'd':
-              move[1]+=1;
-              break;
-          }
-        if(move[0] == 0 && move[1] == 0)
-          move = [-1, 0];
-        var [y,x] = users[i]['snake'][users[i]['snake'].length-1];
-        let found = false;
-        //can move
-        if(y+move[0] >= 0 && y+move[0] < game.length && x+move[1] >= 0 && x+move[1] < game[0].length){
-          if(users[i]['snake'][users[i]['snake'].length-2][0] == y+move[0] && users[i]['snake'][users[i]['snake'].length-2][1] == x+move[1]){
-              move[0] = -move[0];
-              move[1] = -move[1];
-          }
-          if(game[y+move[0]][x+move[1]].length == 1){
-            //slice tail
-            if(game[y+move[0]][x+move[1]] != '1' && game[y+move[0]][x+move[1]] != '2'){
-              let [y1, x1] = users[i]['snake'].splice(0,1)[0];
-              game[y1][x1] = '0';
+        if(users[i]['alive'] == 1){
+          alive += 1;
+          var move = [0, 0];
+            switch(users[i]['lastButtons'][users[i]['lastButtons'].length-1]){
+              case 'w':
+                move[0]-=1;
+                break;
+              case 's':
+                move[0]+=1;
+                break;
+              case 'a':
+                move[1]-=1;
+                break;
+              case 'd':
+                move[1]+=1;
+                break;
             }
-            //generate more food
-            if(game[y+move[0]][x+move[1]] == '1'){
-              for(let j = 0; j< 1000; j++){
-                let [y1, x1]= [getRandomInt(game.length), getRandomInt(game[0].length)];
-                if(game[y1][x1] == '0'){
-                  game[y1][x1] = '1';
-                  break;
+          if(move[0] == 0 && move[1] == 0)
+            move = [-1, 0];
+          var [y,x] = users[i]['snake'][users[i]['snake'].length-1];
+          let found = false;
+          //can move
+          if(y+move[0] >= 0 && y+move[0] < game.length && x+move[1] >= 0 && x+move[1] < game[0].length){
+            if(users[i]['snake'][users[i]['snake'].length-2][0] == y+move[0] && users[i]['snake'][users[i]['snake'].length-2][1] == x+move[1]){
+                move[0] = -move[0];
+                move[1] = -move[1];
+            }
+            if(game[y+move[0]][x+move[1]].length == 1){
+              //slice tail
+              if(game[y+move[0]][x+move[1]] != '1' && game[y+move[0]][x+move[1]] != '2'){
+                let [y1, x1] = users[i]['snake'].splice(0,1)[0];
+                game[y1][x1] = '0';
+              }
+              //generate more food
+              if(game[y+move[0]][x+move[1]] == '1'){
+                for(let j = 0; j< 1000; j++){
+                  let [y1, x1]= [getRandomInt(game.length), getRandomInt(game[0].length)];
+                  if(game[y1][x1] == '0'){
+                    game[y1][x1] = '1';
+                    break;
+                  }
                 }
               }
+              if(move[0] == -1 && move[1] == 0)
+                  game[y+move[0]][x+move[1]] = '1' + game[y][x].slice(1);
+              else if(move[0] == 1 && move[1] == 0)
+                  game[y+move[0]][x+move[1]] = '3' + game[y][x].slice(1);
+              else if(move[0] == 0 && move[1] == 1)
+                  game[y+move[0]][x+move[1]] = '2' + game[y][x].slice(1);
+              else if(move[0] == 0 && move[1] == -1)
+                  game[y+move[0]][x+move[1]] = '4' + game[y][x].slice(1);
+              users[i]['snake'].push([y+move[0], x+move[1]])
+              game[y][x] = '0' + game[y][x].slice(1);
             }
-            if(move[0] == -1 && move[1] == 0)
-                game[y+move[0]][x+move[1]] = '1' + game[y][x].slice(1);
-            else if(move[0] == 1 && move[1] == 0)
-                game[y+move[0]][x+move[1]] = '3' + game[y][x].slice(1);
-            else if(move[0] == 0 && move[1] == 1)
-                game[y+move[0]][x+move[1]] = '2' + game[y][x].slice(1);
-            else if(move[0] == 0 && move[1] == -1)
-                game[y+move[0]][x+move[1]] = '4' + game[y][x].slice(1);
-            users[i]['snake'].push([y+move[0], x+move[1]])
-            game[y][x] = '0' + game[y][x].slice(1);
+            else{
+              users[i]['alive'] = 0
+              death([y, x], game);
+            }
           }
           else{
-            dead.push(i);
+            users[i]['alive'] = 0
             death([y, x], game);
           }
         }
-        else{
-          dead.push(i);
-          death([y, x], game);
-        }
-      }
-      while(dead.length > 0){
-        users.splice(dead[0], 1);
-        dead.splice(0, 1);
-        for(let k = 0; k< dead.length;k++)
-          dead[k]-=1;
       }
       var ter = {};
       ter["map"] = game;
@@ -190,8 +189,8 @@ function play(users, session){
       ter["score"] = 12345;
 
     */
-      io.emit(session + ':map.update', JSON.stringify(ter));
-      if(users.length == users_end)
+      io.to(session).emit('map.update', JSON.stringify(ter));
+      if(alive == users_end)
       {
         clearInterval(game_id);
         new_id = 10;
@@ -201,6 +200,14 @@ function play(users, session){
     }, tick);
 }
 
+io.on('connection', function(socket){
+  socket.on('connected', function(session){
+    if(typeof users_connected[session] == 'undefined')
+      users_connected[session] = [];
+    users_connected[session].push(socket);
+    socket.join(session);
+  })
+});
 
 redis.on('message', function(channel, message) {
     message = JSON.parse(message);

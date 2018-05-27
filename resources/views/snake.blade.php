@@ -22,14 +22,14 @@
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js" charset="utf-8"></script>
     <script>
-    var session = '{{ $session }}';
     var code = '{{ $code }}';
     var socket = io('localhost:3000');
     var id = '10';
-    socket.on(session + ':map.update', function(map){
+    socket.emit('connected', '{{ $session }}');
+    socket.on('map.update', function(map){
       render(map);
     });
-    socket.on(session + ':game_start', function(users){
+    socket.on('game_start', function(users){
         users = JSON.parse(users);
         for(let i = 0; i<users.length; i++){
           if(users['code'] == code){
@@ -41,7 +41,6 @@
 
 
       function push(e){
-        console.log(code + ':pushButton');
         switch (event.which || event.keyCode) {
           case 119:
             socket.emit(code + ':pushButton', 'w')
